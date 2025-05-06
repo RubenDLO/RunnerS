@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Botones -->
+    <style name="ButtonStyle">
+        <item name="android:backgroundTint">@color/orange</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+    </style>
+
+    <!-- Campos de texto -->
+    <style name="EditTextStyle">
+        <item name="android:backgroundTint">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+    </style>
+
+    <!-- Títulos grandes -->
+    <style name="TitleStyle">
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:textSize">24sp</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+    </style>
+
+    <!-- Preguntas en FAQ -->
+    <style name="QuestionStyle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Respuestas en FAQ -->
+    <style name="AnswerStyle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Textos normales -->
+    <style name="TextStyle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>

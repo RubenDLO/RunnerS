@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RunnerS</string>
+    <string-array name="runner_levels">
+        <item>AmateuR</item>
+        <item>IntermediO</item>
+        <item>AvanzadO</item>
+    </string-array>
+    <string-array name="sex_options">
+        <item>Hombre</item>
+        <item>Mujer</item>
+        <item>X</item>
+    </string-array>
+</resources>
+
