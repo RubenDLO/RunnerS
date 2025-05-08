@@ -96,15 +96,20 @@
                 android:fontFamily="@font/montserrat_regular"
                 android:layout_marginTop="8dp"/>
 
-            <TextView
-                android:id="@+id/tvBirthdate"
+            <EditText
+                android:id="@+id/etBirthdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Fecha de nacimiento: 02/06/1999"
+                android:hint="Fecha de nacimiento"
                 android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray"
                 android:textSize="16sp"
                 android:fontFamily="@font/montserrat_regular"
-                android:layout_marginTop="8dp"/>
+                android:inputType="text"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/orange" />
+
+
 
             <EditText
                 android:id="@+id/etWeight"

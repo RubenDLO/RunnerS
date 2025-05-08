@@ -72,8 +72,8 @@ public class RaceTrackingService extends Service {
 
     private void startLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(3000);
-        locationRequest.setFastestInterval(2000);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(3000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         locationCallback = new LocationCallback() {

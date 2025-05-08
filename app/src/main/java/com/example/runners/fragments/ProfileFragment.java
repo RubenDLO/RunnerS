@@ -43,8 +43,8 @@ import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvEmail, tvUsername, tvName, tvBirthdate;
-    private EditText etWeight;
+    private TextView tvEmail, tvUsername, tvName;
+    private EditText etWeight, etBirthdate;
     private Spinner spinnerLevel;
     private Button btnSave;
     private ImageView imgProfilePicture, bgProfile;
@@ -93,7 +93,7 @@ public class ProfileFragment extends Fragment {
         tvEmail = view.findViewById(R.id.tvEmail);
         tvUsername = view.findViewById(R.id.tvUsername);
         tvName = view.findViewById(R.id.tvName);
-        tvBirthdate = view.findViewById(R.id.tvBirthdate);
+        etBirthdate = view.findViewById(R.id.etBirthdate);
         etWeight = view.findViewById(R.id.etWeight);
         spinnerLevel = view.findViewById(R.id.spinnerNivel);
         btnSave = view.findViewById(R.id.btnSaveProfile);
@@ -198,7 +198,7 @@ public class ProfileFragment extends Fragment {
                         tvUsername.setText("Nombre de usuario: " + safeText(snapshot.getString("username")));
                         tvEmail.setText("Correo: " + safeText(snapshot.getString("email")));
                         tvName.setText("Nombre: " + safeText(snapshot.getString("fullName")));
-                        tvBirthdate.setText("Fecha de nacimiento: " + safeText(snapshot.getString("birthDate")));
+                        etBirthdate.setText(snapshot.getString("birthDate"));
 
                         String peso = snapshot.getString("weight");
                         etWeight.setText(peso != null ? peso : "");
@@ -247,6 +247,9 @@ public class ProfileFragment extends Fragment {
                     Map<String, Object> updates = new HashMap<>();
                     updates.put("weight", weight);
                     updates.put("level", newLevel);
+
+                    String birthDate = etBirthdate.getText().toString().trim();
+                    updates.put("birthDate", birthDate);
 
                     db.collection("users").document(userId)
                             .update(updates)

@@ -20,11 +20,13 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Título -->
+
+    <!-- Usuario -->
     <TextView
         android:id="@+id/tvTitleRunnerS"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="96dp"
+        android:layout_marginTop="48dp"
         android:fontFamily="@font/republicaminor_run"
         android:shadowColor="@android:color/darker_gray"
         android:shadowDx="2"
@@ -33,11 +35,11 @@
         android:text="RunnerS"
         android:textColor="@color/orange"
         android:textSize="56sp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Usuario -->
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="0dp"

@@ -131,7 +131,9 @@
     <string name="faq_a_stretch_on_rest">Sí, realizar estiramientos suaves puede mejorar la flexibilidad y contribuir a una mejor recuperación.</string>
 
     <string name="app_name">RunnerS</string>
-    <string name="default_web_client_id">TU_CLIENT_ID_DE_FIREBASE</string>
+    <string name="default_web_client_id">695455374493.apps.googleusercontent.com</string>
+
+
 
     <string-array name="runner_levels">
         <item>AmateuR</item>

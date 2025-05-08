@@ -3,7 +3,6 @@ package com.example.runners;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +15,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -29,7 +29,8 @@ import java.util.Random;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword;
-    private Button btnLogin, btnGoogle;
+    private android.widget.Button btnLogin;
+    private SignInButton btnGoogle;
     private TextView btnRegister, btnForgotPassword, tvVersion;
 
     private FirebaseAuth auth;
@@ -41,7 +42,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 🔐 Autologin si ya estás autenticado
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             startActivity(new Intent(this, MainNavigationActivity.class));
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Iniciar sesión con usuario o email
+        // Login con usuario o email
         btnLogin.setOnClickListener(v -> {
             String input = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString();
@@ -111,15 +111,15 @@ public class LoginActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
-        // Olvidé mi contraseña
+        // Recuperar contraseña
         btnForgotPassword.setOnClickListener(v -> {
             startActivity(new Intent(this, ForgotPasswordActivity.class));
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         });
 
-        // Configuración de Google Sign-In
+        // Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // ← Asegúrate que esté en strings.xml
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
