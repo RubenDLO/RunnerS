@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/nav_advice"
-        android:icon="@drawable/ic_lightbulb"
+        android:icon="@drawable/ic_faq"
         android:title="Consejos" />
 
     <item

@@ -4,11 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
-    private List<Race> raceList;
+    private final List<Race> raceList;
 
     public HistoryAdapter(List<Race> raceList) {
         this.raceList = raceList;
@@ -16,7 +18,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     @Override
     public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_history, parent, false);
         return new HistoryViewHolder(view);
     }
 
@@ -41,7 +43,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             super(itemView);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvDistance = itemView.findViewById(R.id.tvDistance);
-            tvTime = itemView.findViewById(R.id.tvTime);
+            tvTime = itemView.findViewById(R.id.tvTimer);
             tvSpeed = itemView.findViewById(R.id.tvSpeed);
         }
     }

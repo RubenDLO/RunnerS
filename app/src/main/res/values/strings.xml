@@ -1,5 +1,138 @@
 <resources>
+    <!-- Encabezados de bloques -->
+    <string name="faq_header_functionality">Funcionamiento de la app</string>
+    <string name="faq_header_tips">Consejos para correr</string>
+    <string name="faq_header_recovery">Descanso activo</string>
+
+    <!-- FUNCIONAMIENTO DE LA APP -->
+    <string name="faq_q_start_race">¿Cómo inicio una carrera?</string>
+    <string name="faq_a_start_race">Presiona el botón "GO!" en la pantalla principal para comenzar el seguimiento de tu carrera.</string>
+
+    <string name="faq_q_pause_race">¿Puedo pausar y reanudar una carrera?</string>
+    <string name="faq_a_pause_race">Sí, durante la carrera puedes pausar y reanudar el seguimiento según lo necesites.</string>
+
+    <string name="faq_q_stop_race">¿Cómo detengo una carrera?</string>
+    <string name="faq_a_stop_race">Al finalizar tu recorrido, presiona el botón de detener para guardar los datos de la carrera.</string>
+
+    <string name="faq_q_view_history">¿Dónde puedo ver mi historial de carreras?</string>
+    <string name="faq_a_view_history">Accede a la sección "Historial" desde el menú inferior para revisar tus carreras anteriores.</string>
+
+    <string name="faq_q_edit_profile">¿Cómo edito mi perfil?</string>
+    <string name="faq_a_edit_profile">En la sección "Perfil", puedes actualizar tu peso y nivel de corredor.</string>
+
+    <string name="faq_q_change_name_dob">¿Puedo cambiar mi nombre de usuario o fecha de nacimiento?</string>
+    <string name="faq_a_change_name_dob">Actualmente, estos campos están bloqueados para edición por motivos de seguridad.</string>
+
+    <string name="faq_q_temperature">¿La aplicación muestra la temperatura actual?</string>
+    <string name="faq_a_temperature">Sí, la app simula una temperatura ambiente para sugerirte el mejor momento para correr.</string>
+
+    <string name="faq_q_login_method">¿Puedo iniciar sesión con mi correo electrónico o nombre de usuario?</string>
+    <string name="faq_a_login_method">Sí, la aplicación permite iniciar sesión utilizando cualquiera de estos métodos.</string>
+
+    <string name="faq_q_offline">¿La aplicación requiere conexión a internet para funcionar?</string>
+    <string name="faq_a_offline">Algunas funciones, como el seguimiento de carrera, pueden funcionar sin conexión, pero se recomienda estar conectado para una experiencia completa.</string>
+
+    <string name="faq_q_support">¿Cómo puedo contactar al soporte técnico?</string>
+    <string name="faq_a_support">En la sección "Perfil", encontrarás la opción para enviar un mensaje al equipo de soporte.</string>
+
+    <!-- CONSEJOS PARA CORRER -->
+    <!-- Antes de correr -->
+    <string name="faq_q_warmup">¿Debo calentar antes de correr?</string>
+    <string name="faq_a_warmup">Sí, realiza estiramientos dinámicos para preparar tus músculos y reducir el riesgo de lesiones.</string>
+
+    <string name="faq_q_food_before">¿Qué debo comer antes de una carrera?</string>
+    <string name="faq_a_food_before">Consume una comida ligera rica en carbohidratos simples, como frutas o pan integral, al menos una hora antes de correr.</string>
+
+    <string name="faq_q_hydration_before">¿Cómo me hidrato adecuadamente antes de correr?</string>
+    <string name="faq_a_hydration_before">Bebe al menos 500 ml de agua unas dos horas antes de la carrera para asegurar una buena hidratación.</string>
+
+    <string name="faq_q_route_check">¿Es importante conocer la ruta antes de correr?</string>
+    <string name="faq_a_route_check">Sí, familiarizarte con el recorrido y los puntos de hidratación te ayudará a planificar mejor tu carrera.</string>
+
+    <string name="faq_q_clothing">¿Qué ropa debo usar para correr?</string>
+    <string name="faq_a_clothing">Utiliza ropa cómoda, transpirable y adecuada al clima. En condiciones de poca luz, usa prendas reflectantes.</string>
+
+    <!-- Durante la carrera -->
+    <string name="faq_q_hydration_during">¿Cómo mantengo la hidratación durante la carrera?</string>
+    <string name="faq_a_hydration_during">Bebe pequeños sorbos de agua o bebidas isotónicas cada 20 minutos para mantenerte hidratado.</string>
+
+    <string name="faq_q_food_during">¿Debo consumir alimentos durante la carrera?</string>
+    <string name="faq_a_food_during">En carreras largas, considera consumir geles energéticos o frutas secas cada 45 minutos para mantener tus niveles de energía.</string>
+
+    <string name="faq_q_pace">¿Cómo controlo mi ritmo durante la carrera?</string>
+    <string name="faq_a_pace">Escucha a tu cuerpo y mantén un ritmo constante que te permita completar la carrera sin agotarte.</string>
+
+    <string name="faq_q_pain">¿Qué hago si siento molestias durante la carrera?</string>
+    <string name="faq_a_pain">Si experimentas dolor o molestias, reduce el ritmo o detente para evitar lesiones.</string>
+
+    <string name="faq_q_mental_fatigue">¿Es normal sentir fatiga mental durante la carrera?</string>
+    <string name="faq_a_mental_fatigue">Sí, es común. Mantén pensamientos positivos y establece metas cortas para mantener la motivación.</string>
+
+    <!-- Después de correr -->
+    <string name="faq_q_stretch_post">¿Debo estirar después de correr?</string>
+    <string name="faq_a_stretch_post">Sí, realiza estiramientos estáticos para ayudar a la recuperación muscular y prevenir lesiones.</string>
+
+    <string name="faq_q_food_after">¿Qué debo comer después de correr?</string>
+    <string name="faq_a_food_after">Consume una comida rica en proteínas y carbohidratos dentro de las dos horas posteriores para facilitar la recuperación.</string>
+
+    <string name="faq_q_hydration_after">¿Cómo me hidrato después de correr?</string>
+    <string name="faq_a_hydration_after">Rehidrátate con agua o bebidas isotónicas para reponer los líquidos perdidos durante la carrera.</string>
+
+    <string name="faq_q_cold_bath">¿Es recomendable tomar un baño frío después de correr?</string>
+    <string name="faq_a_cold_bath">Sí, los baños fríos pueden ayudar a reducir la inflamación y acelerar la recuperación muscular.</string>
+
+    <string name="faq_q_rest_time">¿Cuánto tiempo debo descansar después de una carrera larga?</string>
+    <string name="faq_a_rest_time">Escucha a tu cuerpo; generalmente, se recomienda descansar al menos 24 horas antes de realizar otra actividad intensa.</string>
+
+    <string name="faq_q_fatigue_after_run">¿Es normal sentir fatiga extrema después de correr?</string>
+    <string name="faq_a_fatigue_after_run">Sí, especialmente tras entrenamientos intensos. Asegúrate de descansar, comer bien y dormir lo suficiente.</string>
+
+    <string name="faq_q_best_post_workout_meal">¿Cuál es la mejor comida después del entrenamiento?</string>
+    <string name="faq_a_best_post_workout_meal">Una comida que combine proteínas (pollo, huevos) y carbohidratos (arroz, patata) es ideal para la recuperación.</string>
+
+    <string name="faq_q_post_run_massage">¿Un masaje después de correr es útil?</string>
+    <string name="faq_a_post_run_massage">Sí, ayuda a aliviar la tensión muscular y mejora la circulación. Un automasaje con rodillo también es eficaz.</string>
+
+    <string name="faq_q_when_train_again">¿Cuándo puedo volver a entrenar después de correr fuerte?</string>
+    <string name="faq_a_when_train_again">Depende del esfuerzo realizado. Generalmente, espera 24 a 48 horas antes de volver a entrenar intensamente.</string>
+
+    <string name="faq_q_muscle_soreness">¿Qué hago si tengo agujetas después de correr?</string>
+    <string name="faq_a_muscle_soreness">Las agujetas son normales. Estira suavemente, mantente activo y aplica calor si lo necesitas.</string>
+
+    <!-- DESCANSO ACTIVO -->
+    <string name="faq_q_what_is_active_rest">¿Qué es el descanso activo?</string>
+    <string name="faq_a_what_is_active_rest">Es una forma de recuperación que implica realizar actividades físicas ligeras, como caminar o nadar, en lugar de descansar completamente.</string>
+
+    <string name="faq_q_why_active_rest">¿Por qué es importante el descanso activo?</string>
+    <string name="faq_a_why_active_rest">Ayuda a mantener la circulación sanguínea, reduce la rigidez muscular y acelera la recuperación.</string>
+
+    <string name="faq_q_how_often_rest">¿Con qué frecuencia debo incluir días de descanso activo?</string>
+    <string name="faq_a_how_often_rest">Incorpora al menos un día de descanso activo a la semana para permitir que tu cuerpo se recupere adecuadamente.</string>
+
+    <string name="faq_q_activities">¿Qué actividades son adecuadas para el descanso activo?</string>
+    <string name="faq_a_activities">Caminar, andar en bicicleta a ritmo suave, nadar o practicar yoga son excelentes opciones.</string>
+
+    <string name="faq_q_replace_training">¿El descanso activo reemplaza al entrenamiento regular?</string>
+    <string name="faq_a_replace_training">No, es complementario. El descanso activo se utiliza en días de recuperación para mantener la actividad sin sobrecargar el cuerpo.</string>
+
+    <string name="faq_q_cross_training">¿Puedo hacer entrenamiento cruzado durante el descanso activo?</string>
+    <string name="faq_a_cross_training">Sí, siempre que sea de baja intensidad y no interfiera con la recuperación.</string>
+
+    <string name="faq_q_signs_rest_needed">¿Cómo sé si necesito un día de descanso activo?</string>
+    <string name="faq_a_signs_rest_needed">Si sientes fatiga persistente, dolores musculares o falta de motivación, un día de descanso activo puede ser beneficioso.</string>
+
+    <string name="faq_q_prevent_injury">¿El descanso activo ayuda a prevenir lesiones?</string>
+    <string name="faq_a_prevent_injury">Sí, al permitir la recuperación muscular y reducir la tensión acumulada, disminuye el riesgo de lesiones.</string>
+
+    <string name="faq_q_nutrition_rest_day">¿Debo cambiar mi alimentación en los días de descanso activo?</string>
+    <string name="faq_a_nutrition_rest_day">Mantén una dieta equilibrada, ajustando las calorías según la actividad realizada, y prioriza alimentos ricos en nutrientes.</string>
+
+    <string name="faq_q_stretch_on_rest">¿Es necesario estirar en los días de descanso activo?</string>
+    <string name="faq_a_stretch_on_rest">Sí, realizar estiramientos suaves puede mejorar la flexibilidad y contribuir a una mejor recuperación.</string>
+
     <string name="app_name">RunnerS</string>
+    <string name="default_web_client_id">TU_CLIENT_ID_DE_FIREBASE</string>
+
     <string-array name="runner_levels">
         <item>AmateuR</item>
         <item>IntermediO</item>
@@ -11,4 +144,3 @@
         <item>X</item>
     </string-array>
 </resources>
-

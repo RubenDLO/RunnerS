@@ -11,55 +11,66 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Botón flotante: INICIAR -->
     <TextView
         android:id="@+id/tvTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="184dp"
+        android:background="@drawable/bg_timer_capsule"
+        android:elevation="8dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp"
         android:text="00:00"
-        android:textSize="32sp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
         android:textStyle="bold"
-        android:background="#AA000000"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/layoutButtons"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnStartRace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
+        android:contentDescription="Iniciar carrera"
+        app:srcCompat="@drawable/ic_play"
+        app:backgroundTint="@color/orange"
+        app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp">
+        android:layout_margin="24dp" />
 
-        <Button
-            android:id="@+id/btnStartRace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Iniciar"
-            android:backgroundTint="@color/orange"
-            android:textColor="@color/white"/>
+    <!-- Botón flotante: PAUSAR / REANUDAR -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnPauseRace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Pausar carrera"
+        app:srcCompat="@drawable/ic_pause"
+        app:backgroundTint="@color/gray"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnStartRace"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="24dp" />
 
-        <Button
-            android:id="@+id/btnPauseRace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pausar"
-            android:backgroundTint="@color/gray"
-            android:textColor="@color/white"
-            android:layout_marginStart="8dp"/>
-
-        <Button
-            android:id="@+id/btnStopRace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Detener"
-            android:backgroundTint="@color/red"
-            android:textColor="@color/white"
-            android:layout_marginStart="8dp"/>
-    </LinearLayout>
+    <!-- Botón flotante: DETENER -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnStopRace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Detener carrera"
+        app:srcCompat="@drawable/ic_stop"
+        app:backgroundTint="@color/red"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnPauseRace"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,42 +19,59 @@ public class TrainingPlanActivity extends AppCompatActivity {
         tvReminders = findViewById(R.id.tvReminders);
 
         String level = getIntent().getStringExtra("runnerLevel");
-        if (level == null) level = "Amateur";
+        if (level == null) level = "amateur";
+        String displayedLevel = capitalize(level);
 
-        tvTrainingTitle.setText("Tu plan para nivel: " + level);
+        tvTrainingTitle.setText("Tu plan para nivel: " + displayedLevel);
         tvTrainingPlan.setText(getTrainingPlanForLevel(level));
         tvReminders.setText(getFriendlyReminders());
     }
 
+    private String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    }
+
     private String getTrainingPlanForLevel(String level) {
         switch (level.toLowerCase()) {
-            case "AmateuR":
-                return "- 3 días suaves: 5 km a ritmo cómodo\n" +
-                        "- 1 día de series cortas: 5x400m\n" +
-                        "- 1 día de caminata activa o descanso\n" +
-                        "- Consejo: ¡Disfruta cada paso!";
+            case "amateur":
+                return "🏃‍♂️ Nivel Amateur\n" +
+                        "- Lunes: 5 km ritmo cómodo + estiramientos\n" +
+                        "- Miércoles: 30 min caminata rápida o bici suave\n" +
+                        "- Viernes: 5 km + 4 progresivos\n" +
+                        "- Domingo: 6 km tranquilo\n\n" +
+                        "🎯 Objetivo: generar hábito y mejorar fondo base.";
 
-            case "IntermediO":
-                return "- 2 días de rodaje largo: 8-12 km\n" +
-                        "- 1 día de series medias: 6x800m\n" +
-                        "- 1 día de fartlek (cambios de ritmo)\n" +
-                        "- 1 día de recuperación activa";
+            case "intermedio":
+                return "🏃‍♂️ Nivel Intermedio\n" +
+                        "- Lunes: 6-8 km a ritmo medio\n" +
+                        "- Miércoles: 4x1000m a ritmo intenso (descanso 2min)\n" +
+                        "- Viernes: 7 km + 6 progresivos\n" +
+                        "- Domingo: 10-12 km rodaje largo\n\n" +
+                        "🎯 Objetivo: aumentar resistencia y velocidad controlada.";
 
-            case "AvanzadO":
-                return "- 1 tirada larga (15 km o más)\n" +
-                        "- 2 días de calidad (intervalos + técnica)\n" +
-                        "- 1 día de rodaje medio\n" +
-                        "- 1 día de descanso total o muy suave";
+            case "avanzado":
+                return "🏃‍♂️ Nivel Avanzado\n" +
+                        "- Lunes: 10 km suaves\n" +
+                        "- Martes: 5x1200m + técnica de carrera\n" +
+                        "- Jueves: Fartlek 45 min (ej. 4x3min rápido + 2min suave)\n" +
+                        "- Sábado: 16-18 km fondo largo\n\n" +
+                        "🎯 Objetivo: consolidar rendimiento y preparar competiciones.";
 
             default:
-                return "¡Nivel no reconocido! Volvamos a correr desde cero 🏃‍♂️";
+                return "Nivel no reconocido. Volvamos a empezar desde la base. 🏃‍♂️";
         }
     }
 
     private String getFriendlyReminders() {
-        return "💧 Hidratación: No esperes a tener sed. Agua antes, durante y después.\n\n" +
-                "🍽️ Alimentación: Varía tu dieta. No vivas solo de pasta y plátanos 🍌.\n\n" +
-                "🛌 Descanso: El descanso también entrena. 7-9h de sueño te harán volar 💤.\n\n" +
-                "🔥 Recuerda: ¡No hay éxito sin constancia! Cada zancada cuenta.";
+        return "💧 Hidratación\n" +
+                "- No esperes a tener sed. Bebe agua antes, durante y después.\n\n" +
+                "🍽️ Alimentación\n" +
+                "- Come variado. Prioriza alimentos naturales. Post-carrera: proteínas + hidratos.\n\n" +
+                "🛌 Descanso\n" +
+                "- Dormir entre 7-9h mejora la recuperación. Un día de descanso activo a la semana.\n\n" +
+                "🔥 Mentalidad\n" +
+                "- Correr es constancia. Celebra pequeños logros. El cuerpo escucha a la mente.\n\n" +
+                "⚠️ Extra\n" +
+                "- No te compares, progresa a tu ritmo. Y si duele, descansa. Tu cuerpo es sabio.";
     }
 }

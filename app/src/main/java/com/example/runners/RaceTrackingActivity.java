@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,40 +21,56 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.runners.databinding.ActivityRaceTrackingBinding;
-import com.google.android.gms.location.*;
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RaceTrackingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ActivityRaceTrackingBinding binding;
     private GoogleMap mMap;
     private boolean tracking = false;
-    private boolean paused = false;
+    private boolean isPaused = false;
+    private boolean hasCenteredMap = false;
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LatLng lastPoint = null;
-    private List<LatLng> routePoints = new ArrayList<>();
+    private final List<LatLng> routePoints = new ArrayList<>();
 
-    private long startTime = 0;
     private long elapsedPaused = 0;
-    private Handler timerHandler = new Handler();
+    private long startTime = 0;
+    private final Handler timerHandler = new Handler();
     private Runnable timerRunnable;
 
     private final ActivityResultLauncher<String[]> locationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 boolean fineGranted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION));
                 boolean coarseGranted = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_COARSE_LOCATION));
-                if (fineGranted || coarseGranted) {
+                boolean fgServiceGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                        || Boolean.TRUE.equals(result.get(Manifest.permission.FOREGROUND_SERVICE_LOCATION));
+
+                if ((fineGranted || coarseGranted) && fgServiceGranted) {
                     enableUserLocation();
                 } else {
-                    Toast.makeText(this, "Permisos de ubicación denegados", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Permisos de ubicación y servicio no concedidos", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -80,7 +97,17 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         });
 
         binding.btnPauseRace.setOnClickListener(v -> {
-            if (tracking) pauseRace();
+            if (tracking) {
+                isPaused = !isPaused;
+
+                if (isPaused) {
+                    pauseRace();
+                    binding.btnPauseRace.setImageResource(R.drawable.ic_play);
+                } else {
+                    resumeRace();
+                    binding.btnPauseRace.setImageResource(R.drawable.ic_pause);
+                }
+            }
         });
 
         binding.btnStopRace.setOnClickListener(v -> {
@@ -89,10 +116,22 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void startRace() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "No tienes permiso para iniciar el servicio de carrera", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         tracking = true;
-        paused = false;
+        isPaused = false;
         startTime = System.currentTimeMillis();
         startTimer();
+
+        binding.btnStartRace.setVisibility(View.GONE);
+        binding.btnPauseRace.setVisibility(View.VISIBLE);
+        binding.btnStopRace.setVisibility(View.VISIBLE);
+        binding.btnPauseRace.setImageResource(R.drawable.ic_pause);
 
         Toast.makeText(this, "¡Carrera iniciada!", Toast.LENGTH_SHORT).show();
 
@@ -103,15 +142,16 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void pauseRace() {
-        paused = !paused;
-        if (paused) {
-            stopTimer();
-            Toast.makeText(this, "Carrera pausada", Toast.LENGTH_SHORT).show();
-        } else {
-            startTime = System.currentTimeMillis() - elapsedPaused;
-            startTimer();
-            Toast.makeText(this, "Carrera reanudada", Toast.LENGTH_SHORT).show();
-        }
+        stopTimer();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+        Toast.makeText(this, "Carrera pausada", Toast.LENGTH_SHORT).show();
+    }
+
+    private void resumeRace() {
+        startTime = System.currentTimeMillis() - elapsedPaused;
+        startTimer();
+        startLocationUpdates();
+        Toast.makeText(this, "Carrera reanudada", Toast.LENGTH_SHORT).show();
     }
 
     private void stopRace() {
@@ -119,6 +159,10 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         stopTimer();
         fusedLocationClient.removeLocationUpdates(locationCallback);
         stopService(new Intent(this, RaceTrackingService.class));
+
+        binding.btnStartRace.setVisibility(View.VISIBLE);
+        binding.btnPauseRace.setVisibility(View.GONE);
+        binding.btnStopRace.setVisibility(View.GONE);
 
         long elapsedTime = elapsedPaused;
         double totalDistance = 0.0;
@@ -140,8 +184,31 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         double calories = totalDistance * 70;
         double temp = 20 + Math.random() * 10;
 
+        if (mMap == null) {
+            Toast.makeText(this, "Mapa no disponible", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         double finalTotalDistance = totalDistance;
-        mMap.snapshot(bitmap -> {
+
+        if (!routePoints.isEmpty()) {
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            for (LatLng point : routePoints) {
+                boundsBuilder.include(point);
+            }
+
+            LatLngBounds bounds = boundsBuilder.build();
+            int padding = 120;
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+        }
+
+        mMap.setOnMapLoadedCallback(() -> mMap.snapshot(bitmap -> {
+            if (bitmap == null) {
+                Toast.makeText(this, "Error al capturar el mapa", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String encodedImage = encodeBitmapToBase64(bitmap);
 
             Race race = new Race(
@@ -157,9 +224,9 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
 
             RaceHolder.getInstance().setLastRace(race);
 
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
-                String uid = user.getUid();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                String uid = currentUser.getUid();
                 Map<String, Object> raceMap = new HashMap<>();
                 raceMap.put("date", race.getDate());
                 raceMap.put("distance", race.getDistance());
@@ -174,16 +241,20 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
                 FirebaseFirestore.getInstance().collection("races")
                         .add(raceMap)
                         .addOnSuccessListener(documentReference -> {
-                            startActivity(new Intent(this, RaceSummaryActivity.class));
-                            finish();
+                            Toast.makeText(this, "¡Carrera guardada en tu historial!", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Error al guardar carrera en Firebase", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Error al guardar carrera: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         });
             } else {
-                Toast.makeText(this, "No hay sesión activa", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No hay sesión activa o datos no disponibles", Toast.LENGTH_LONG).show();
             }
-        });
+
+            Intent resumenIntent = new Intent(this, RaceSummaryActivity.class);
+            startActivity(resumenIntent);
+            finish();
+
+        }));
     }
 
     private String encodeBitmapToBase64(android.graphics.Bitmap bitmap) {
@@ -223,13 +294,23 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null || paused) return;
+                if (locationResult == null || isPaused) return;
                 for (Location location : locationResult.getLocations()) {
                     LatLng point = new LatLng(location.getLatitude(), location.getLongitude());
                     routePoints.add(point);
+
+                    if (!hasCenteredMap) {
+                        hasCenteredMap = true;
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 17));
+                    }
+
                     if (lastPoint != null) {
                         mMap.addPolyline(new PolylineOptions().add(lastPoint, point).width(5));
                     }
+
+                    // 👇 Esta línea es la clave para que la cámara nos siga
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
+
                     lastPoint = point;
                 }
             }
@@ -237,13 +318,6 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
 
         if (hasLocationPermissions()) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
@@ -275,13 +349,13 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
 
         } else {
             List<String> permissions = new ArrayList<>();
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                permissions.add(Manifest.permission.FOREGROUND_SERVICE_LOCATION);
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
                 permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-            } else {
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
             }
             locationPermissionLauncher.launch(permissions.toArray(new String[0]));
         }
@@ -302,8 +376,27 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
         if (hasLocationPermissions()) {
             enableUserLocation();
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    LatLng startLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17f));
+                    hasCenteredMap = true;
+                }
+            });
         } else {
             requestLocationPermissions();
         }

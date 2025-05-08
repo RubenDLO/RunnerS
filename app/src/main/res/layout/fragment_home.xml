@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Fondo -->
+    <ImageView
+        android:id="@+id/bgHome"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pic_home"
+        android:contentDescription="Fondo Home"
+        android:alpha="0.85"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Título RS -->
+    <TextView
+        android:id="@+id/tvRS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" RunnerS "
+        android:textSize="46sp"
+        android:textStyle="bold"
+        android:textColor="@color/accent_orange"
+        android:fontFamily="@font/republicaminor_run"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bocadillo motivación -->
+    <LinearLayout
+        android:id="@+id/bubbleMotivation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bubble_orange"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvRS"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:id="@+id/tvMotivation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hoy es tu día, ¡vamos a por ello!"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Bocadillo clima -->
+    <LinearLayout
+        android:id="@+id/bubbleWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bubble_orange"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/bubbleMotivation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/tvTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Temperatura actual: 22 °C"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:fontFamily="@font/montserrat_bold" />
+
+        <TextView
+            android:id="@+id/tvRecommendation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hora recomendada: 20:00"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:fontFamily="@font/montserrat_bold"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Botón principal GO! -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStartRace"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:text="GO!"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/republicaminor_run"
+        android:backgroundTint="@color/accent_orange"
+        app:cornerRadius="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Botón brazo esfuerzo -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnInfoMotivation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/esfuerzo"
+        android:contentDescription="Mensaje motivacional"
+        android:backgroundTint="@color/accent_orange"
+        app:layout_constraintBottom_toBottomOf="@id/btnStartRace"
+        app:layout_constraintEnd_toStartOf="@id/btnStartRace"
+        android:layout_marginEnd="32dp" />
+
+    <!-- Botón info clima -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnInfoWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/info"
+        android:contentDescription="Información del clima"
+        android:backgroundTint="@color/accent_orange"
+        app:layout_constraintBottom_toBottomOf="@id/btnStartRace"
+        app:layout_constraintStart_toEndOf="@id/btnStartRace"
+        android:layout_marginStart="32dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

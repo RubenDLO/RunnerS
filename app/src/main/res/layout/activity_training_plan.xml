@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:text="Consejos sobre alimentación, hidratación y descanso"
             android:textSize="16sp"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:background="@drawable/rounded_orange_border"
             android:padding="16dp"
             android:textStyle="italic" />

@@ -90,5 +90,19 @@
             android:textStyle="italic"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnGoToHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ver historial"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/accent_orange"
+            android:fontFamily="@font/montserrat_bold"
+            android:padding="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center_horizontal"
+            />
+
     </LinearLayout>
 </ScrollView>

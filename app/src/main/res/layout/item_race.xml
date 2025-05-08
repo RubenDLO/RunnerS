@@ -3,72 +3,113 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
+    android:layout_marginBottom="16dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="6dp"
-    android:background="@android:color/white">
+    android:layout_marginHorizontal="12dp"
+    app:cardBackgroundColor="@android:color/white">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Fecha -->
+        <TextView
+            android:id="@+id/tvRaceDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha: --/--/----"
+            android:textColor="@color/orange"
+            android:textSize="16sp"
+            android:fontFamily="@font/montserrat_bold" />
+
+        <!-- Mapa -->
         <ImageView
             android:id="@+id/ivMap"
             android:layout_width="match_parent"
             android:layout_height="160dp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/rounded_map_bg" />
-
-        <TextView
-            android:id="@+id/tvDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fecha"
-            android:textColor="@color/orange"
-            android:textStyle="bold"
-            android:textSize="16sp"
             android:layout_marginTop="8dp"
-            android:layout_below="@id/ivMap" />
+            android:scaleType="centerCrop"
+            android:background="@drawable/rounded_orange_border"
+            android:contentDescription="Miniatura del mapa" />
 
-        <TextView
-            android:id="@+id/tvDistance"
-            android:layout_width="wrap_content"
+        <!-- Info expandible -->
+        <LinearLayout
+            android:id="@+id/expandableLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Distancia"
-            android:textColor="@android:color/black"
-            android:layout_below="@id/tvDate"
-            android:layout_marginTop="4dp" />
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="12dp">
 
-        <TextView
-            android:id="@+id/tvDuration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Duración"
-            android:textColor="@android:color/black"
-            android:layout_below="@id/tvDistance"
-            android:layout_marginTop="2dp" />
+            <TextView
+                android:id="@+id/tvRaceDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distancia: 0.00 km"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
 
-        <TextView
-            android:id="@+id/tvSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Velocidad"
-            android:textColor="@android:color/black"
-            android:layout_below="@id/tvDuration"
-            android:layout_marginTop="2dp" />
+            <TextView
+                android:id="@+id/tvRaceStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inicio: --:--"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
 
+            <TextView
+                android:id="@+id/tvRaceDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duración: --:--"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
+
+            <TextView
+                android:id="@+id/tvRaceSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ritmo medio: -- min/km"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
+
+            <TextView
+                android:id="@+id/tvRaceCalories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Calorías: -- kcal"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
+
+            <TextView
+                android:id="@+id/tvRaceTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Temperatura: -- ºC"
+                android:textColor="@color/orange"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_regular" />
+        </LinearLayout>
+
+        <!-- Botón eliminar -->
         <ImageButton
             android:id="@+id/btnDelete"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/ivMap"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end"
             android:layout_marginTop="8dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Eliminar"
             android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Eliminar carrera"
             app:tint="@color/orange" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

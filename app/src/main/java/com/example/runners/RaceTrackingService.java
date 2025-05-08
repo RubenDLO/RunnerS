@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
@@ -43,15 +44,31 @@ public class RaceTrackingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        createNotificationChannel();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                checkSelfPermission(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+            Log.e("RaceTrackingService", "Permiso FOREGROUND_SERVICE_LOCATION no concedido. Deteniendo servicio.");
+            stopSelf();
+            return;
+        }
+
+        createNotificationChannel();
         startTime = System.currentTimeMillis();
-        startForeground(1, buildNotification("00:00", 0.0));
+
+        Notification notification = buildNotification("00:00", 0.0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(1, notification);
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         startLocationUpdates();
         startNotificationUpdates();
     }
+
 
     private void startLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create();
