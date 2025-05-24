@@ -2,7 +2,6 @@ package com.example.runners;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -127,27 +126,23 @@ public class RegisterActivity extends AppCompatActivity {
                                                 .document(user.getUid())
                                                 .set(userMap)
                                                 .addOnSuccessListener(unused -> {
-                                                    Log.d("RegistroDebug", "Usuario guardado correctamente");
-
-                                                    if (!isFinishing()) {
-                                                        Toast.makeText(this, "Cuenta creada correctamente. Inicia sesión para continuar.", Toast.LENGTH_LONG).show();
-                                                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                        startActivity(intent);
-                                                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                                                        finish();
-                                                    }
+                                                    FirebaseAuth.getInstance().signOut();
+                                                    Toast.makeText(this, "Cuenta creada correctamente. Inicia sesión para continuar.", Toast.LENGTH_LONG).show();
+                                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                                                    finish();
                                                 })
                                                 .addOnFailureListener(e -> {
-                                                    Log.e("RegistroDebug", "Error guardando usuario: " + e.getMessage());
-                                                    Toast.makeText(this, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(this, "Error al guardar usuario", Toast.LENGTH_LONG).show();
                                                 });
                                     })
                                     .addOnFailureListener(e -> {
                                         if (e instanceof FirebaseAuthUserCollisionException) {
                                             Toast.makeText(this, "Ese correo ya está registrado", Toast.LENGTH_SHORT).show();
                                         } else {
-                                            Toast.makeText(this, "Error al registrar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                            Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_LONG).show();
                                         }
                                     });
                         }

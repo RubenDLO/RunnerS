@@ -23,7 +23,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class LoginActivity extends AppCompatActivity {
@@ -38,9 +41,16 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 1001;
 
+    private final int[] backgrounds = {
+            R.drawable.pic_login7,
+            R.drawable.pic_login10,
+            R.drawable.pic_login13
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -49,20 +59,11 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        setContentView(R.layout.activity_login);
-
-        // Fondo aleatorio
-        int[] backgrounds = {
-                R.drawable.pic_login1, R.drawable.pic_login2, R.drawable.pic_login3,
-                R.drawable.pic_login4, R.drawable.pic_login5, R.drawable.pic_login6,
-                R.drawable.pic_login8
-        };
         int randomIndex = new Random().nextInt(backgrounds.length);
         Drawable randomBg = ContextCompat.getDrawable(this, backgrounds[randomIndex]);
         ImageView background = findViewById(R.id.imgBackground);
-        background.setImageDrawable(randomBg);
+        if (randomBg != null) background.setImageDrawable(randomBg);
 
-        // Referencias UI
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -75,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Login con usuario o email
         btnLogin.setOnClickListener(v -> {
             String input = etUsername.getText().toString().trim();
             String password = etPassword.getText().toString();
@@ -100,24 +100,21 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Error al buscar usuario: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Error al buscar usuario", Toast.LENGTH_LONG).show();
                         });
             }
         });
 
-        // Registro
         btnRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
-        // Recuperar contraseña
         btnForgotPassword.setOnClickListener(v -> {
             startActivity(new Intent(this, ForgotPasswordActivity.class));
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         });
 
-        // Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -135,12 +132,13 @@ public class LoginActivity extends AppCompatActivity {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(this, "Bienvenido, " + email, Toast.LENGTH_SHORT).show();
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        ensureUserProfileExists(user);
                         startActivity(new Intent(this, MainNavigationActivity.class));
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                         finish();
                     } else {
-                        Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -157,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
                     firebaseAuthWithGoogle(account.getIdToken());
                 }
             } catch (ApiException e) {
-                Toast.makeText(this, "Error en login con Google: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error en login con Google", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -167,7 +165,8 @@ public class LoginActivity extends AppCompatActivity {
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(this, "Sesión iniciada con Google", Toast.LENGTH_SHORT).show();
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        ensureUserProfileExists(user);
                         startActivity(new Intent(this, MainNavigationActivity.class));
                         finish();
                     } else {
@@ -180,5 +179,34 @@ public class LoginActivity extends AppCompatActivity {
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    private void ensureUserProfileExists(FirebaseUser user) {
+        if (user == null) return;
+
+        String uid = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        String email = user.getEmail();
+                        String fullName = user.getDisplayName() != null ? user.getDisplayName() : "Nombre";
+                        String username = email != null ? email.split("@")[0] : "usuario";
+                        String profilePicture = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("email", email);
+                        userData.put("fullName", fullName);
+                        userData.put("username", username);
+                        userData.put("profilePicture", profilePicture);
+                        userData.put("weight", "");
+                        userData.put("birthDate", "");
+                        userData.put("level", "Amateur");
+
+                        db.collection("users").document(uid)
+                                .set(userData, SetOptions.merge());
+                    }
+                });
     }
 }

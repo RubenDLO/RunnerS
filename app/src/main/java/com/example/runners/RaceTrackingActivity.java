@@ -1,9 +1,12 @@
 package com.example.runners;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -80,8 +83,7 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         binding = ActivityRaceTrackingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.mapTracking);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapTracking);
         mapFragment.getMapAsync(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -99,7 +101,6 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         binding.btnPauseRace.setOnClickListener(v -> {
             if (tracking) {
                 isPaused = !isPaused;
-
                 if (isPaused) {
                     pauseRace();
                     binding.btnPauseRace.setImageResource(R.drawable.ic_play);
@@ -133,8 +134,6 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         binding.btnStopRace.setVisibility(View.VISIBLE);
         binding.btnPauseRace.setImageResource(R.drawable.ic_pause);
 
-        Toast.makeText(this, "¡Carrera iniciada!", Toast.LENGTH_SHORT).show();
-
         Intent serviceIntent = new Intent(this, RaceTrackingService.class);
         ContextCompat.startForegroundService(this, serviceIntent);
 
@@ -144,14 +143,12 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
     private void pauseRace() {
         stopTimer();
         fusedLocationClient.removeLocationUpdates(locationCallback);
-        Toast.makeText(this, "Carrera pausada", Toast.LENGTH_SHORT).show();
     }
 
     private void resumeRace() {
         startTime = System.currentTimeMillis() - elapsedPaused;
         startTimer();
         startLocationUpdates();
-        Toast.makeText(this, "Carrera reanudada", Toast.LENGTH_SHORT).show();
     }
 
     private void stopRace() {
@@ -179,7 +176,12 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
         }
         totalDistance /= 1000.0;
 
-        double avgSpeed = totalDistance / (elapsedTime / 3600000.0);
+        double avgSpeed = (elapsedTime > 0) ? totalDistance / (elapsedTime / 3600000.0) : 0;
+        if (Double.isNaN(avgSpeed) || Double.isInfinite(avgSpeed)) {
+            Toast.makeText(this, "Error: velocidad media inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String startTimeFormatted = android.text.format.DateFormat.format("HH:mm", startTime).toString();
         double calories = totalDistance * 70;
         double temp = 20 + Math.random() * 10;
@@ -189,23 +191,24 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
             return;
         }
 
-        double finalTotalDistance = totalDistance;
-
         if (!routePoints.isEmpty()) {
             LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
             for (LatLng point : routePoints) {
                 boundsBuilder.include(point);
             }
-
             LatLngBounds bounds = boundsBuilder.build();
-            int padding = 120;
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+            mMap.setOnMapLoadedCallback(() -> {
+                int padding = 180;
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding));
+            });
         }
 
+        double finalTotalDistance = totalDistance;
         mMap.setOnMapLoadedCallback(() -> mMap.snapshot(bitmap -> {
             if (bitmap == null) {
                 Toast.makeText(this, "Error al capturar el mapa", Toast.LENGTH_SHORT).show();
+                goToSummary();
                 return;
             }
 
@@ -225,43 +228,59 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
             RaceHolder.getInstance().setLastRace(race);
 
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                String uid = currentUser.getUid();
-                Map<String, Object> raceMap = new HashMap<>();
-                raceMap.put("date", race.getDate());
-                raceMap.put("distance", race.getDistance());
-                raceMap.put("elapsedTime", race.getElapsedTime());
-                raceMap.put("averageSpeed", race.getAverageSpeed());
-                raceMap.put("mapSnapshotBase64", race.getMapSnapshotBase64());
-                raceMap.put("startTimeFormatted", race.getStartTimeFormatted());
-                raceMap.put("caloriesBurned", race.getCaloriesBurned());
-                raceMap.put("temperature", race.getTemperature());
-                raceMap.put("userId", uid);
+            if (currentUser != null && isInternetAvailable()) {
+                try {
+                    String uid = currentUser.getUid();
 
-                FirebaseFirestore.getInstance().collection("races")
-                        .add(raceMap)
-                        .addOnSuccessListener(documentReference -> {
-                            Toast.makeText(this, "¡Carrera guardada en tu historial!", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Error al guardar carrera: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
+                    Map<String, Object> raceMap = new HashMap<>();
+                    raceMap.put("date", race.getDate());
+                    raceMap.put("distance", race.getDistance());
+                    raceMap.put("elapsedTime", race.getElapsedTime());
+                    raceMap.put("averageSpeed", race.getAverageSpeed());
+                    raceMap.put("mapSnapshotBase64", race.getMapSnapshotBase64());
+                    raceMap.put("startTimeFormatted", race.getStartTimeFormatted());
+                    raceMap.put("caloriesBurned", race.getCaloriesBurned());
+                    raceMap.put("temperature", race.getTemperature());
+                    raceMap.put("userId", uid);
+
+                    FirebaseFirestore.getInstance().collection("races")
+                            .add(raceMap)
+                            .addOnSuccessListener(documentReference -> goToSummary())
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Error al guardar carrera", Toast.LENGTH_SHORT).show();
+                                goToSummary();
+                            });
+                } catch (Exception e) {
+                    Toast.makeText(this, "Error inesperado", Toast.LENGTH_SHORT).show();
+                    goToSummary();
+                }
             } else {
-                Toast.makeText(this, "No hay sesión activa o datos no disponibles", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No hay conexión o usuario activo", Toast.LENGTH_SHORT).show();
+                goToSummary();
             }
-
-            Intent resumenIntent = new Intent(this, RaceSummaryActivity.class);
-            startActivity(resumenIntent);
-            finish();
-
         }));
+    }
+
+    private void goToSummary() {
+        Intent resumenIntent = new Intent(this, RaceSummaryActivity.class);
+        startActivity(resumenIntent);
+        finish();
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+        return false;
     }
 
     private String encodeBitmapToBase64(android.graphics.Bitmap bitmap) {
         java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
-        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream);
+        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
-        return android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
+        return android.util.Base64.encodeToString(byteArray, android.util.Base64.NO_WRAP);
     }
 
     private void startTimer() {
@@ -305,19 +324,22 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
                     }
 
                     if (lastPoint != null) {
-                        mMap.addPolyline(new PolylineOptions().add(lastPoint, point).width(5));
+                        mMap.addPolyline(new PolylineOptions()
+                                .add(lastPoint, point)
+                                .width(12f)
+                                .color(ContextCompat.getColor(RaceTrackingActivity.this, R.color.accent_orange))
+                                .geodesic(true));
                     }
 
-                    // 👇 Esta línea es la clave para que la cámara nos siga
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(point));
-
                     lastPoint = point;
                 }
             }
         };
 
         if (hasLocationPermissions()) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
             fusedLocationClient.requestLocationUpdates(request, locationCallback, null);
@@ -379,17 +401,6 @@ public class RaceTrackingActivity extends AppCompatActivity implements OnMapRead
 
         if (hasLocationPermissions()) {
             enableUserLocation();
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
             fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
                     LatLng startLatLng = new LatLng(location.getLatitude(), location.getLongitude());

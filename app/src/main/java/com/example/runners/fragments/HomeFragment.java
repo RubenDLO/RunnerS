@@ -33,8 +33,8 @@ public class HomeFragment extends Fragment {
     private ImageView bgHome;
     private final Handler imageHandler = new Handler();
     private final int[] backgroundImages = {
-            R.drawable.pic_login8, R.drawable.pic_login9, R.drawable.pic_login10,
-            R.drawable.pic_login11, R.drawable.pic_login12, R.drawable.pic_login13, R.drawable.pic_login14
+            R.drawable.pic_login10,
+             R.drawable.pic_login13
     };
     private int currentImageIndex = 0;
     private Runnable imageSliderRunnable;

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvEmail, tvUsername, tvName;
     private EditText etWeight, etBirthdate;
     private Spinner spinnerLevel;
-    private Button btnSave;
+    private Button btnSave, btnLogout, btnTrainingPlan;
     private ImageView imgProfilePicture, bgProfile;
 
     private FirebaseFirestore db;
@@ -59,8 +60,7 @@ public class ProfileFragment extends Fragment {
 
     private final Handler imageHandler = new Handler();
     private final int[] backgroundImages = {
-            R.drawable.pic_login7, R.drawable.pic_login9, R.drawable.pic_login10,
-            R.drawable.pic_login11, R.drawable.pic_login12, R.drawable.pic_login13, R.drawable.pic_login14
+            R.drawable.pic_login7, R.drawable.pic_login10, R.drawable.pic_login13
     };
     private int currentImageIndex = 0;
     private Runnable imageSliderRunnable;
@@ -71,25 +71,8 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        // Enlazamos vistas
         bgProfile = view.findViewById(R.id.bgProfile);
-        bgProfile.setImageResource(backgroundImages[0]);
-
-        Button btnLogout = view.findViewById(R.id.btnLogout);
-        btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(requireContext(), LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            requireActivity().finish();
-        });
-
-        Button btnTrainingPlan = view.findViewById(R.id.btnTrainingPlan);
-        btnTrainingPlan.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), TrainingPlanActivity.class);
-            intent.putExtra("runnerLevel", spinnerLevel.getSelectedItem().toString());
-            startActivity(intent);
-        });
-
         tvEmail = view.findViewById(R.id.tvEmail);
         tvUsername = view.findViewById(R.id.tvUsername);
         tvName = view.findViewById(R.id.tvName);
@@ -97,17 +80,38 @@ public class ProfileFragment extends Fragment {
         etWeight = view.findViewById(R.id.etWeight);
         spinnerLevel = view.findViewById(R.id.spinnerNivel);
         btnSave = view.findViewById(R.id.btnSaveProfile);
+        btnLogout = view.findViewById(R.id.btnLogout);
+        btnTrainingPlan = view.findViewById(R.id.btnTrainingPlan);
         imgProfilePicture = view.findViewById(R.id.imgProfilePicture);
+
+        // Verificamos que ninguna vista sea null (por prevención extra)
+        if (bgProfile == null || btnSave == null || btnLogout == null || btnTrainingPlan == null) {
+            Toast.makeText(requireContext(), "Error al cargar elementos del perfil", Toast.LENGTH_LONG).show();
+            return view;
+        }
+
+        Glide.with(requireContext())
+                .load(backgroundImages[0])
+                .centerCrop()
+                .into(bgProfile);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        userId = user.getUid();
 
+        if (user != null) {
+            userId = user.getUid();
+        } else {
+            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+        // Spinner de nivel
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(), R.array.runner_levels, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLevel.setAdapter(adapter);
 
+        // Imagen de perfil
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -122,10 +126,8 @@ public class ProfileFragment extends Fragment {
                 isGranted -> {
                     if (isGranted) {
                         imagePickerLauncher.launch("image/*");
-                    } else {
-                        if (isAdded()) {
-                            Toast.makeText(getContext(), "Permiso denegado para acceder a la galería", Toast.LENGTH_SHORT).show();
-                        }
+                    } else if (isAdded()) {
+                        Toast.makeText(getContext(), "Permiso denegado para acceder a la galería", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -151,7 +153,30 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        // Botones
         btnSave.setOnClickListener(v -> saveProfileData());
+        btnLogout.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Cerrar sesión")
+                    .setMessage("¿Estás seguro de que quieres cerrar sesión?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        FirebaseAuth.getInstance().signOut();
+                        requireContext().getSharedPreferences("RunnerPrefs", 0).edit().clear().apply();
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
+
+        btnTrainingPlan.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), TrainingPlanActivity.class);
+            intent.putExtra("runnerLevel", spinnerLevel.getSelectedItem().toString());
+            startActivity(intent);
+        });
+
         loadProfileData();
 
         return view;
@@ -160,20 +185,24 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         imageSliderRunnable = new Runnable() {
             @Override
             public void run() {
                 currentImageIndex = (currentImageIndex + 1) % backgroundImages.length;
 
-                AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-                fadeOut.setDuration(500);
-                AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-                fadeIn.setDuration(500);
+                if (bgProfile != null) {
+                    AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    fadeOut.setDuration(500);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    fadeIn.setDuration(500);
 
-                bgProfile.startAnimation(fadeOut);
-                bgProfile.setImageResource(backgroundImages[currentImageIndex]);
-                bgProfile.startAnimation(fadeIn);
+                    bgProfile.startAnimation(fadeOut);
+                    Glide.with(requireContext())
+                            .load(backgroundImages[currentImageIndex])
+                            .centerCrop()
+                            .into(bgProfile);
+                    bgProfile.startAnimation(fadeIn);
+                }
 
                 imageHandler.postDelayed(this, 10000);
             }
@@ -188,45 +217,64 @@ public class ProfileFragment extends Fragment {
         imageHandler.removeCallbacks(imageSliderRunnable);
     }
 
+
     private void loadProfileData() {
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!isAdded() || getContext() == null) return;
+        // Forzamos Firestore online con espera explícita
+        db.enableNetwork().addOnCompleteListener(enableTask -> {
+            if (!enableTask.isSuccessful()) {
+                Log.e("ProfileFragment", "No se pudo habilitar red de Firestore");
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Firestore sigue sin conexión", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
 
-                    if (snapshot.exists()) {
-                        tvUsername.setText("Nombre de usuario: " + safeText(snapshot.getString("username")));
-                        tvEmail.setText("Correo: " + safeText(snapshot.getString("email")));
-                        tvName.setText("Nombre: " + safeText(snapshot.getString("fullName")));
-                        etBirthdate.setText(snapshot.getString("birthDate"));
+            // Una vez conectados, intentamos leer el documento del usuario
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (!isAdded() || getContext() == null) return;
 
-                        String peso = snapshot.getString("weight");
-                        etWeight.setText(peso != null ? peso : "");
+                        if (snapshot.exists()) {
+                            tvUsername.setText("Nombre de usuario: " + safeText(snapshot.getString("username")));
+                            tvEmail.setText("Correo: " + safeText(snapshot.getString("email")));
+                            tvName.setText("Nombre: " + safeText(snapshot.getString("fullName")));
+                            etBirthdate.setText(snapshot.getString("birthDate"));
 
-                        String level = snapshot.getString("level");
-                        if (level != null && isAdded()) {
-                            String[] niveles = getResources().getStringArray(R.array.runner_levels);
-                            for (int i = 0; i < niveles.length; i++) {
-                                if (niveles[i].equalsIgnoreCase(level)) {
-                                    spinnerLevel.setSelection(i);
-                                    break;
+                            String peso = snapshot.getString("weight");
+                            etWeight.setText(peso != null ? peso : "");
+
+                            String level = snapshot.getString("level");
+                            if (level != null) {
+                                String[] niveles = getResources().getStringArray(R.array.runner_levels);
+                                for (int i = 0; i < niveles.length; i++) {
+                                    if (niveles[i].equalsIgnoreCase(level)) {
+                                        spinnerLevel.setSelection(i);
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        String imageUrl = snapshot.getString("profilePicture");
-                        if (imageUrl != null && !imageUrl.isEmpty() && isAdded()) {
-                            Glide.with(requireContext())
-                                    .load(imageUrl)
-                                    .circleCrop()
-                                    .into(imgProfilePicture);
+                            String imageUrl = snapshot.getString("profilePicture");
+                            if (imageUrl != null && !imageUrl.isEmpty()) {
+                                Glide.with(requireContext())
+                                        .load(imageUrl)
+                                        .circleCrop()
+                                        .into(imgProfilePicture);
+                            }
+
+                        } else {
+                            Toast.makeText(getContext(), "No existe perfil para este usuario", Toast.LENGTH_SHORT).show();
+                            Log.e("ProfileFragment", "Documento no encontrado para userId: " + userId);
                         }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded() || getContext() == null) return;
-                    Toast.makeText(getContext(), "Error al cargar el perfil", Toast.LENGTH_SHORT).show();
-                });
+                    })
+                    .addOnFailureListener(e -> {
+                        if (isAdded()) {
+                            Toast.makeText(getContext(), "Error al cargar el perfil", Toast.LENGTH_SHORT).show();
+                            Log.e("ProfileFragment", "Error Firestore: " + e.getMessage(), e);
+                        }
+                    });
+        });
     }
 
     private void saveProfileData() {

@@ -1,8 +1,11 @@
 package com.example.runners;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Base64;
 import android.widget.Button;
@@ -59,25 +62,26 @@ public class RaceSummaryActivity extends AppCompatActivity {
         tvCalories.setText(String.format("Calorías: %.0f kcal", race.getCaloriesBurned()));
         tvTemp.setText(String.format("Temperatura: %.1f ºC", race.getTemperature()));
 
-        try {
-            String encodedMap = race.getEncodedMap();
-            if (encodedMap != null && !encodedMap.isEmpty()) {
+        String encodedMap = race.getMapSnapshotBase64();
+        if (encodedMap != null && !encodedMap.isEmpty()) {
+            try {
                 byte[] decodedBytes = Base64.decode(encodedMap, Base64.DEFAULT);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                 ivMap.setImageBitmap(bitmap);
-            } else {
-                tvFeedback.setText("No se generó imagen del mapa.");
+            } catch (Exception e) {
+                tvFeedback.setText("Error al cargar el mapa de la ruta.");
             }
-        } catch (Exception e) {
-            tvFeedback.setText("Error al cargar el mapa de la ruta.");
+        } else {
+            tvFeedback.setText("No se generó imagen del mapa.");
         }
 
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            tvFeedback.setText("Usuario no identificado.");
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            tvFeedback.append("\nUsuario no identificado.");
             return;
         }
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = auth.getCurrentUser().getUid();
         FirebaseFirestore.getInstance().collection("users").document(userId)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -91,21 +95,27 @@ public class RaceSummaryActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    tvFeedback.setText("Error al cargar tu nivel: " + e.getMessage());
+                    if (!isInternetAvailable()) {
+                        tvFeedback.setText("No tienes conexión a Internet.\n\nCorre con corazón.");
+                    } else {
+                        tvFeedback.setText("Error al cargar tu nivel.");
+                    }
                 });
 
         btnGoToHistory.setOnClickListener(v -> {
-            Intent intent = new Intent(RaceSummaryActivity.this, MainNavigationActivity.class);
-            intent.putExtra("openHistory", true);
-            startActivity(intent);
-            finish();
-        });
-
-        findViewById(R.id.btnGoToHistory).setOnClickListener(v -> {
-            Intent intent = new Intent(RaceSummaryActivity.this, MainNavigationActivity.class);
+            Intent intent = new Intent(this, MainNavigationActivity.class);
             intent.putExtra("goToHistory", true);
             startActivity(intent);
             finish();
         });
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+        return false;
     }
 }

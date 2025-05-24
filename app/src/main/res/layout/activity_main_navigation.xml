@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/login_background">
 
-    <!-- Contenedor de fragmentos -->
+    <!--contenedor de fragments -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="0dp"
@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Menú inferior -->
+    <!-- men inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"

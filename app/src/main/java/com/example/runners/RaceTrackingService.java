@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -48,8 +47,6 @@ public class RaceTrackingService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 checkSelfPermission(android.Manifest.permission.FOREGROUND_SERVICE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
-
-            Log.e("RaceTrackingService", "Permiso FOREGROUND_SERVICE_LOCATION no concedido. Deteniendo servicio.");
             stopSelf();
             return;
         }
@@ -69,7 +66,6 @@ public class RaceTrackingService extends Service {
         startNotificationUpdates();
     }
 
-
     private void startLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(5000);
@@ -83,14 +79,12 @@ public class RaceTrackingService extends Service {
 
                 for (Location location : locationResult.getLocations()) {
                     trackedRoutePoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
-                    Log.d("RaceTrackingService", "Punto GPS añadido: " + location.getLatitude() + ", " + location.getLongitude());
                 }
             }
         };
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("RaceTrackingService", "Permisos de localización no concedidos. Deteniendo servicio.");
             stopSelf();
             return;
         }

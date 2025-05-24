@@ -8,7 +8,7 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String sexo;
-    private String fechaNacimiento;
+    private final String fechaNacimiento;
     private float peso;
 
     public User(String username, String email, String password, String sexo, String fechaNacimiento, float peso) {
@@ -20,47 +20,20 @@ public class User implements Serializable {
         this.peso = peso;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getSexo() { return sexo; }
+    public void setSexo(String sexo) { this.sexo = sexo; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getFechaNacimiento() { return fechaNacimiento; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSexo() {
-        return sexo;
-    }
-
-    public void setSexo(String sexo) {
-        this.sexo = sexo;
-    }
-
-    public String getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public float getPeso() {
-        return peso;
-    }
-
-    public void setPeso(float peso) {
-        this.peso = peso;
-    }
+    public float getPeso() { return peso; }
+    public void setPeso(float peso) { this.peso = peso; }
 }
