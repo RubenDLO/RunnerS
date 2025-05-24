@@ -98,12 +98,7 @@ public class RaceAdapter extends RecyclerView.Adapter<RaceAdapter.RaceViewHolder
                     .show();
         });
 
-        holder.itemView.setOnClickListener(v -> {
-            if (holder.expandableLayout.getVisibility() == View.GONE) {
-                holder.expandableLayout.setVisibility(View.VISIBLE);
-            } else {
-                holder.expandableLayout.setVisibility(View.GONE);
-            }
+        holder.itemView.setOnClickListener(v -> {holder.expandableLayout.setVisibility(holder.expandableLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
         });
     }
 
